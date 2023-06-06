@@ -1,0 +1,53 @@
+version: "3.8"
+services:
+  mongodb1:
+    image: mongo
+    container_name: mongodb1
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - ./database1:/data/db
+      - ./rs-init.sh:/scripts/rs-init.sh
+    networks:
+      - mongors-network
+    ports:
+      - 27017:27017
+    restart: unless-stopped
+    # mongod --port "PORT" --dbpath "YOUR_DB_DATA_PATH" --replSet "REPLICA_SET_INSTANCE_NAME"
+    # mongod --port 27017 --dbpath "path" --replSet dbrs
+    entrypoint: [ "/usr/bin/mongod", --bind_ip_all, "--replSet", "dbrs"]
+  
+  mongodb2:
+    image: mongo
+    container_name: mongodb2
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - ./database2:/data/db
+    networks:
+      - mongors-network
+    ports:
+      - 27018:27017
+    restart: unless-stopped
+    entrypoint: [ "/usr/bin/mongod", --bind_ip_all, "--replSet", "dbrs"]
+
+  mongodb3:
+    image: mongo
+    container_name: mongodb3
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - ./database3:/data/db
+    networks:
+      - mongors-network
+    ports:
+      - 27019:27017
+    restart: unless-stopped
+    entrypoint: [ "/usr/bin/mongod", --bind_ip_all, "--replSet", "dbrs"]
+
+networks:
+  mongors-network:
+    driver: bridge
